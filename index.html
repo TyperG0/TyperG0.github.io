@@ -3,202 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halil Esen | Bilgisayar Mühendisi & Geliştirici</title>
+    <title>Halil Esen | Ana Sayfa</title>
     <style>
         :root {
-            --bg: #f3f6fb;
-            --surface: #ffffff;
-            --ink: #1f2937;
-            --muted: #4b5563;
-            --brand: #0f766e;
-            --brand-strong: #115e59;
-            --accent: #d97706;
-            --line: #dbe3ee;
+            --bg: #090d17;
+            --bg-soft: #111827;
+            --surface: #121a29;
+            --surface-2: #162235;
+            --text: #e5edf7;
+            --muted: #9fb0c9;
+            --line: #27364f;
+            --blue: #3b82f6;
+            --red: #ef4444;
+            --cyan: #22d3ee;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 0;
             background:
-                radial-gradient(circle at top right, #d7f3ef 0%, transparent 38%),
-                radial-gradient(circle at top left, #e8eefc 0%, transparent 30%),
+                radial-gradient(circle at 10% 12%, rgba(59, 130, 246, 0.18), transparent 32%),
+                radial-gradient(circle at 85% 18%, rgba(239, 68, 68, 0.16), transparent 35%),
+                radial-gradient(circle at 50% 90%, rgba(34, 211, 238, 0.08), transparent 40%),
                 var(--bg);
-            color: var(--ink);
+            color: var(--text);
             line-height: 1.6;
+            min-height: 100vh;
         }
-        header {
-            background: linear-gradient(120deg, #0f172a, #1e293b 65%, #0f766e);
-            color: #fff;
-            padding: 3rem 0;
-            text-align: center;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            letter-spacing: 0.5px;
-        }
-        header p {
-            font-size: 1.2rem;
-            color: #d1fae5;
-        }
+
         .container {
-            width: 80%;
-            margin: auto;
-            overflow: hidden;
-            padding: 2rem 0;
+            width: min(1100px, 92%);
+            margin: 0 auto;
         }
-        .section-title {
-            border-bottom: 2px solid var(--brand);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            color: #111827;
+
+        .nav-wrap {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            background: rgba(9, 13, 23, 0.86);
+            border-bottom: 1px solid rgba(39, 54, 79, 0.7);
         }
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
-            border: 1px solid var(--line);
-        }
-        .card h3 {
-            color: #0f172a;
-            margin-top: 0;
-        }
-        .card p {
-            color: var(--muted);
-        }
-        button {
-            background: linear-gradient(90deg, var(--brand), var(--brand-strong));
-            color: #fff;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25);
-        }
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(15, 118, 110, 0.32);
-        }
-        .game-actions {
+
+        nav {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 14px;
-            flex-wrap: wrap;
-            margin-top: 12px;
+            padding: 14px 0;
         }
-        .secondary-link {
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: 0.6px;
+        }
+
+        .menu {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--text);
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            transition: 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            border-color: var(--line);
+            background: rgba(22, 34, 53, 0.8);
+        }
+
+        header {
+            padding: 5.5rem 0 2.5rem;
+        }
+
+        .hero {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(18, 26, 41, 0.95), rgba(10, 19, 34, 0.92));
+            box-shadow: 0 16px 44px rgba(3, 7, 18, 0.45);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            right: -120px;
+            top: -120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.22), transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(1.95rem, 3.6vw, 3rem);
+            letter-spacing: 0.8px;
+        }
+
+        .hero p {
+            margin: 0.7rem 0 1.1rem;
+            color: var(--muted);
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge {
             display: inline-flex;
             align-items: center;
-            text-decoration: none;
-            border: 1px solid var(--line);
-            padding: 10px 14px;
-            border-radius: 10px;
+            gap: 8px;
             font-weight: 700;
-            color: #0f172a;
-            background: #ffffff;
+            color: #cce2ff;
+            background: linear-gradient(130deg, rgba(59, 130, 246, 0.2), rgba(22, 34, 53, 0.9));
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.88rem;
         }
+
+        main {
+            padding-bottom: 2.8rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin: 0 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.45);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--surface), var(--surface-2));
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            box-shadow: 0 12px 28px rgba(2, 6, 20, 0.36);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.05rem;
+        }
+
+        .card p {
+            color: var(--muted);
+            margin-bottom: 0;
+        }
+
+        .project-tag {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(239, 68, 68, 0.18);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #ffd6d6;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
         footer {
             text-align: center;
             padding: 1rem;
-            background: #0f172a;
-            color: #fff;
-            margin-top: 2rem;
+            color: #8da0bd;
+            border-top: 1px solid rgba(39, 54, 79, 0.8);
+            background: rgba(9, 13, 23, 0.7);
         }
+
         @media (max-width: 768px) {
-            .container {
-                width: 92%;
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
             }
-            header h1 {
-                font-size: 2rem;
+
+            .hero {
+                padding: 1.4rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1040px) {
+            .card-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
     </style>
 </head>
 <body>
 
+    <div class="nav-wrap">
+        <nav class="container" aria-label="Ana menü">
+            <div class="brand">HE | Portfolio</div>
+            <div class="menu">
+                <a class="active" href="index.html">Ana Sayfa</a>
+                <a href="projeler.html">Projelerim</a>
+                <a href="hakkimda.html">Hakkımda</a>
+            </div>
+        </nav>
+    </div>
+
     <header>
-        <h1>Halil Esen</h1>
-        <p>Bilgisayar Mühendisliği Öğrencisi | Yazılım Geliştirici</p>
+        <div class="container hero">
+            <h1>Halil Esen</h1>
+            <p>Bilgisayar Mühendisliği Öğrencisi | Otonom Sistemler & Yazılım</p>
+            <div class="badge-row" aria-label="Yetenekler">
+                <span class="badge">C++</span>
+                <span class="badge">Python</span>
+                <span class="badge">ROS</span>
+                <span class="badge">Gazebo</span>
+                <span class="badge">Arduino</span>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
-        <h2 class="section-title">Hakkımda</h2>
-        <p>Merhaba, ben Halil. Celal Bayar Üniversitesi'nde Bilgisayar Programcılığı eğitimimi tamamladıktan sonra, DGS'de Türkiye 658.'si olarak Kayseri Üniversitesi Bilgisayar Mühendisliği bölümüne geçiş yaptım. Python, C++, ROS ve donanım konularına ilgi duyuyor, edindiğim tecrübeleri ve notları burada paylaşıyorum.</p>
-
-        <h2 class="section-title">Akademik Arşiv & Kaynaklar</h2>
+    <main class="container">
+        <h2 class="section-title">Öne Çıkan Projeler</h2>
         <div class="card-grid">
-            <div class="card">
-                <h3>📚 Vize & Final Notları</h3>
-                <p>Bilgisayar Mühendisliği derslerine ait özetler, çıkabilecek soru tipleri ve çalışma notlarım.</p>
-                <button>Notlara Git</button>
-            </div>
-            <div class="card">
-                <h3>🚀 DGS Rehberi</h3>
-                <p>DGS'de 658. sıraya yükselirken uyguladığım çalışma taktikleri ve tavsiyeler.</p>
-                <button>Rehberi İncele</button>
-            </div>
-            <div class="card">
-                <h3>📊 DGS Net Takip Aracı</h3>
-                <p>Python tabanlı, deneme sınavı sonuçlarını analiz eden ve konulara göre başarıyı ölçen araç.</p>
-                <button>Aracı İncele</button>
-            </div>
+            <article class="card">
+                <h3>Teknofest Savaşan İHA (kaDrone)</h3>
+                <p>Sabit kanatlı platform için görev planlama, uçuş kontrol yazılımı ve simülasyon temelli doğrulama süreçleri.</p>
+                <span class="project-tag">ROS + Gazebo</span>
+            </article>
+            <article class="card">
+                <h3>Görüntü İşleme ile Hedef Takibi</h3>
+                <p>Gerçek zamanlı görüntü akışından hedef tespiti, sınıflandırma ve takip denemeleri içeren Python tabanlı çalışmalar.</p>
+                <span class="project-tag">Python + OpenCV</span>
+            </article>
+            <article class="card">
+                <h3>Gömülü Sistemler ve Otomasyon</h3>
+                <p>Arduino ile sensör okumaları, RFID tabanlı erişim kontrolü ve endüstriyel arayüz prototipleme geliştirmeleri.</p>
+                <span class="project-tag">Arduino + C++</span>
+            </article>
         </div>
-
-        <h2 class="section-title">Üzerinde Çalıştığım Projeler</h2>
-        <div class="card-grid">
-            <div class="card">
-                <h3>✈️ Teknofest Savaşan İHA</h3>
-                <p>"kaDrone" takımı ile birlikte geliştirdiğimiz sabit kanatlı insansız hava aracı projesi ve ROS/Gazebo simülasyon süreçleri.</p>
-            </div>
-            <div class="card">
-                <h3>🏭 Kepenk Otomasyon Arayüzü</h3>
-                <p>Müşteri bilgilerini tutan ve fabrikaya imalat detaylarını ileten sektörel yazılım projesi.</p>
-            </div>
-            <div class="card">
-                <h3>🚪 RFID Geçiş Kontrol Sistemi</h3>
-                <p>Arduino, servo motor ve LCD ekran kullanarak geliştirdiğim yetkilendirmeli kapı geçiş sistemi.</p>
-            </div>
-        </div>
-
-        <h2 class="section-title">Eğlence Alanı</h2>
-        <div class="card">
-            <h3>🎮 Meteor Dash Arena</h3>
-            <p>GAME butonu ayrı bir pencerede yüksek tempolu oyunu açar. W/S veya ok tuşlarıyla hareket et, meteorlerden kaç, enerji kürelerini topla ve en yüksek skoru yap.</p>
-            <div class="game-actions">
-                <button id="openGameWindow">GAME</button>
-                <a class="secondary-link" href="game.html" target="_blank" rel="noopener">Yeni Sekmede Aç</a>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <footer>
         <p>&copy; 2026 Halil Esen. Tüm hakları saklıdır.</p>
     </footer>
-
-    <script>
-        const gameButton = document.getElementById('openGameWindow');
-
-        gameButton.addEventListener('click', () => {
-            const popup = window.open(
-                'game.html',
-                'meteor_dash_arena',
-                'width=1100,height=760,left=120,top=80,resizable=yes,scrollbars=yes'
-            );
-
-            if (!popup) {
-                alert('Tarayici popup penceresini engelledi. Lutfen "Yeni Sekmede Ac" baglantisini kullan.');
-            }
-        });
-    </script>
 
 </body>
 </html>

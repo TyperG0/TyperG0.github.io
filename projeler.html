@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halil Esen | Projelerim</title>
+    <style>
+        :root {
+            --bg: #090d17;
+            --bg-soft: #111827;
+            --surface: #121a29;
+            --surface-2: #162235;
+            --text: #e5edf7;
+            --muted: #9fb0c9;
+            --line: #27364f;
+            --blue: #3b82f6;
+            --red: #ef4444;
+            --cyan: #22d3ee;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at 12% 8%, rgba(59, 130, 246, 0.16), transparent 30%),
+                radial-gradient(circle at 88% 16%, rgba(239, 68, 68, 0.14), transparent 34%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container { width: min(1100px, 92%); margin: 0 auto; }
+
+        .nav-wrap {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            background: rgba(9, 13, 23, 0.86);
+            border-bottom: 1px solid rgba(39, 54, 79, 0.7);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 0;
+        }
+
+        .brand { font-weight: 700; letter-spacing: 0.6px; }
+
+        .menu {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--text);
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            transition: 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            border-color: var(--line);
+            background: rgba(22, 34, 53, 0.8);
+        }
+
+        header { padding: 3.4rem 0 1.4rem; }
+
+        .hero {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+            background: linear-gradient(135deg, rgba(18, 26, 41, 0.95), rgba(10, 19, 34, 0.92));
+            box-shadow: 0 16px 44px rgba(3, 7, 18, 0.45);
+        }
+
+        .hero h1 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); }
+        .hero p { margin: 0.5rem 0 0; color: var(--muted); }
+
+        main { padding-bottom: 2.8rem; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 1rem;
+        }
+
+        .project-card {
+            background: linear-gradient(180deg, var(--surface), var(--surface-2));
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 12px 28px rgba(2, 6, 20, 0.36);
+            display: grid;
+            gap: 10px;
+        }
+
+        .project-card h3 { margin: 0; font-size: 1.03rem; }
+        .project-card p { margin: 0; color: var(--muted); }
+
+        .chip-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #d5e5ff;
+            border: 1px solid rgba(59, 130, 246, 0.42);
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 999px;
+            padding: 5px 9px;
+        }
+
+        .github-btn {
+            margin-top: 6px;
+            text-decoration: none;
+            text-align: center;
+            color: #ffffff;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(90deg, #1d4ed8, #ef4444);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #8da0bd;
+            border-top: 1px solid rgba(39, 54, 79, 0.8);
+            background: rgba(9, 13, 23, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            nav { flex-direction: column; align-items: flex-start; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1040px) {
+            .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-wrap">
+        <nav class="container" aria-label="Ana menü">
+            <div class="brand">HE | Portfolio</div>
+            <div class="menu">
+                <a href="index.html">Ana Sayfa</a>
+                <a class="active" href="projeler.html">Projelerim</a>
+                <a href="hakkimda.html">Hakkımda</a>
+            </div>
+        </nav>
+    </div>
+
+    <header class="container">
+        <section class="hero">
+            <h1>Projelerim</h1>
+            <p>Savunma ve havacılık odaklı yazılım, otonom sistem ve gömülü uygulama çalışmalarım.</p>
+        </section>
+    </header>
+
+    <main class="container">
+        <section class="dashboard-grid" aria-label="Detaylı proje kartları">
+            <article class="project-card">
+                <h3>Teknofest Savaşan İHA (kaDrone)</h3>
+                <p>Sabit kanatlı insansız hava aracı için ROS mimarisi ve Gazebo ortamında otonom uçuş simülasyonları ve yazılım entegrasyonu.</p>
+                <div class="chip-row">
+                    <span class="chip">ROS</span>
+                    <span class="chip">Gazebo</span>
+                    <span class="chip">Otonom Uçuş</span>
+                </div>
+                <a class="github-btn" href="#" aria-label="kaDrone GitHub linki">GitHub Linki</a>
+            </article>
+
+            <article class="project-card">
+                <h3>Görüntü İşleme ile Hedef Takibi</h3>
+                <p>Python ve OpenCV kullanılarak kamera verisi üzerinden anlık obje tespiti.</p>
+                <div class="chip-row">
+                    <span class="chip">Python</span>
+                    <span class="chip">OpenCV</span>
+                    <span class="chip">Takip Algoritması</span>
+                </div>
+                <a class="github-btn" href="#" aria-label="Hedef Takibi GitHub linki">GitHub Linki</a>
+            </article>
+
+            <article class="project-card">
+                <h3>Gömülü Sistemler</h3>
+                <p>Arduino ile sensör okuma, RFID geçiş kontrolü ve endüstriyel kepenk otomasyonu arayüzü.</p>
+                <div class="chip-row">
+                    <span class="chip">Arduino</span>
+                    <span class="chip">RFID</span>
+                    <span class="chip">Endüstriyel Otomasyon</span>
+                </div>
+                <a class="github-btn" href="#" aria-label="Gomulu Sistemler GitHub linki">GitHub Linki</a>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Halil Esen. Tüm hakları saklıdır.</p>
+    </footer>
+</body>
+</html>
