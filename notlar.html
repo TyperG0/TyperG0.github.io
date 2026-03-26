@@ -99,37 +99,14 @@
             border-radius: 12px;
             padding: 16px;
             box-shadow: 0 12px 28px rgba(2, 6, 20, 0.36);
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 12px;
             min-height: 420px;
         }
 
         .panel h2 { margin: 0; font-size: 1.2rem; }
         .panel p { margin: 0; color: var(--muted); }
-
-        .embed-placeholder {
-            width: 100%;
-            min-height: 300px;
-            border: 1px dashed rgba(59, 130, 246, 0.6);
-            border-radius: 10px;
-            background: rgba(11, 18, 32, 0.72);
-            color: #bcd2f4;
-            display: grid;
-            place-items: center;
-            text-align: center;
-            padding: 1rem;
-        }
-
-        iframe.embed-placeholder {
-            min-height: 320px;
-            border-style: solid;
-            border-color: rgba(39, 54, 79, 0.9);
-        }
-
-        .placeholder-note {
-            color: #93a9c8;
-            font-size: 0.9rem;
-        }
 
         footer {
             text-align: center;
@@ -161,36 +138,42 @@
 
     <main class="container">
         <section class="hero">
-            <h1>Notlar ve Chat</h1>
-            <p>Akademik arşivini ve mühendislik sohbet alanını tek ekranda yönet.</p>
+            <h1>Notlar ve Topluluk</h1>
+            <p>Akademik arşivini yönet ve mühendislik topluluğuyla iletişime geç.</p>
         </section>
 
-<section class="panel-grid">
+        <section class="panel-grid">
             
             <article class="panel">
-                <h2>Akademik Arşiv (Google Drive)</h2>
-                <p>Ders notları ve projeler için ortak dosya paylaşım alanı.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <h2 style="margin: 0;">Akademik Arşiv</h2>
+                    <a href="https://drive.google.com/drive/folders/1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP?usp=drive_link" target="_blank" style="background: var(--blue); color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: 0.2s;">
+                        + Dosya Yükle
+                    </a>
+                </div>
+                <p style="margin-top: 0;">Notları görüntüle veya topluluğa yeni doküman ekle.</p>
                 <iframe 
                     src="https://drive.google.com/embeddedfolderview?id=1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP#list" 
                     width="100%" 
-                    height="350" 
+                    height="320" 
                     frameborder="0" 
-                    style="border-radius: 8px; border: 1px solid rgba(39, 54, 79, 0.9); background: white;"
-                    title="Kayseri Üniversitesi Ortak Notlar">
+                    style="border-radius: 8px; border: 1px solid rgba(39, 54, 79, 0.9); background: white; flex-grow: 1;">
                 </iframe>
             </article>
 
-            <article class="panel">
-                <h2>Mühendislik Odası (Canlı Sohbet)</h2>
-                <p>Fikir alışverişi ve anlık yardımlaşma alanı.</p>
-                <iframe 
-                    src="https://minnit.chat/KayseriU?embed&&nickname=" 
-                    style="border:none;width:100%;height:350px;border-radius:8px;" 
-                    allowTransparency="true">
-                </iframe>
+            <article class="panel" style="justify-content: center; align-items: center; text-align: center;">
+                <h2>Mühendislik Odası</h2>
+                <p style="margin-bottom: 24px;">Anlık yardımlaşma, kod incelemeleri ve sınav dönemi stratejileri için topluluğumuza katıl.</p>
+                
+                <a href="#" style="background: #5865F2; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
+                    💬 Discord Sunucusuna Katıl
+                </a>
+                
+                <p style="font-size: 0.85rem; color: var(--muted); margin-top: 20px;">
+                    *Tarayıcı güvenlik kısıtlamaları nedeniyle anlık mesajlaşma süreci Discord platformu üzerinden yürütülmektedir.
+                </p>
             </article>
 
-        </section>
         </section>
     </main>
 
