@@ -108,6 +108,190 @@
         .panel h2 { margin: 0; font-size: 1.2rem; }
         .panel p { margin: 0; color: var(--muted); }
 
+        .share-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .gallery-box {
+            flex: 1;
+            min-height: 220px;
+            border: 1px solid var(--line);
+            background: rgba(8, 14, 24, 0.74);
+            border-radius: 10px;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .gallery-item {
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0b1321;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item .meta {
+            padding: 7px 8px;
+            font-size: 0.78rem;
+            color: #b8c8de;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .empty-state {
+            min-height: 150px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #8da0bd;
+            border: 1px dashed rgba(59, 130, 246, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .upload-box,
+        .queue-box,
+        .files-box {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(8, 14, 24, 0.74);
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0d1626;
+            color: var(--text);
+            padding: 8px 10px;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            background: #2563eb;
+        }
+
+        .btn.secondary { background: #0f766e; }
+        .btn.warn { background: #ef4444; }
+        .btn.small { padding: 5px 8px; font-size: 0.8rem; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            background: rgba(34, 211, 238, 0.2);
+            color: #c8f7ff;
+            border: 1px solid rgba(34, 211, 238, 0.45);
+        }
+
+        .pending-item,
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid rgba(39, 54, 79, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+            background: rgba(10, 18, 30, 0.8);
+        }
+
+        .pending-info,
+        .file-info {
+            min-width: 0;
+        }
+
+        .pending-name,
+        .file-name {
+            font-size: 0.88rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 240px;
+        }
+
+        .tiny {
+            font-size: 0.76rem;
+            color: #8da0bd;
+        }
+
+        .chat-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            min-height: 280px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            overflow: auto;
+            background: rgba(8, 14, 24, 0.74);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .msg {
+            border: 1px solid rgba(39, 54, 79, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            background: rgba(10, 18, 30, 0.8);
+        }
+
+        .msg-head {
+            display: flex;
+            justify-content: space-between;
+            color: #98b0ce;
+            font-size: 0.75rem;
+            margin-bottom: 3px;
+            gap: 8px;
+        }
+
+        .msg-text {
+            color: #e5edf7;
+            word-break: break-word;
+            font-size: 0.9rem;
+        }
+
         footer {
             text-align: center;
             padding: 1rem;
@@ -120,6 +304,7 @@
             nav { flex-direction: column; align-items: flex-start; }
             .panel-grid { grid-template-columns: 1fr; }
             .panel { min-height: 360px; }
+            .gallery-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -138,47 +323,321 @@
 
     <main class="container">
         <section class="hero">
-            <h1>Notlar ve Topluluk</h1>
-            <p>Akademik arşivini yönet ve mühendislik topluluğuyla iletişime geç.</p>
+            <h1>Notlar ve Chat</h1>
+            <p>Paylaşılan görselleri görüntüle, dosya adaylarını yükle ve onay mekanizmasıyla yayınla.</p>
         </section>
 
         <section class="panel-grid">
-            
             <article class="panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <h2 style="margin: 0;">Akademik Arşiv</h2>
-                    <a href="https://drive.google.com/drive/folders/1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP?usp=drive_link" target="_blank" style="background: var(--blue); color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: 0.2s;">
-                        + Dosya Yükle
-                    </a>
+                <h2>Akademik Arşiv (Paylaşılan Görseller)</h2>
+                <p>Ana alan paylaşılan görsellerdir. Aşağıdaki yüklemeler önce onay kuyruğuna düşer, onay verirsen yayına geçer.</p>
+
+                <div class="share-layout">
+                    <div class="gallery-box">
+                        <div id="galleryGrid" class="gallery-grid"></div>
+                    </div>
+
+                    <div class="files-box">
+                        <div class="control-row" style="justify-content: space-between;">
+                            <strong>Onaylı Dosyalar</strong>
+                            <span class="status-pill">Yayında</span>
+                        </div>
+                        <div id="approvedFiles"></div>
+                    </div>
+
+                    <div class="upload-box">
+                        <strong>Dosya Yükleme</strong>
+                        <p class="tiny" style="margin-top: 6px;">Gorsel veya dokuman sec. Yüklenen dosya önce "Onay Bekleyen" listesine eklenir.</p>
+                        <div class="control-row">
+                            <input id="uploader" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar">
+                            <button id="addToQueue" class="btn secondary" type="button">Kuyruga Ekle</button>
+                        </div>
+                    </div>
+
+                    <div class="queue-box">
+                        <div class="control-row" style="justify-content: space-between;">
+                            <strong>Onay Bekleyenler</strong>
+                            <div class="control-row" style="gap: 6px;">
+                                <input id="adminPin" type="password" placeholder="Yonetici PIN">
+                                <button id="unlockAdmin" class="btn" type="button">Onay Kilidini Ac</button>
+                            </div>
+                        </div>
+                        <p class="tiny" id="adminState">Durum: Kilitli (onay islemleri kapali)</p>
+                        <div id="pendingList"></div>
+                    </div>
                 </div>
-                <p style="margin-top: 0;">Notları görüntüle veya topluluğa yeni doküman ekle.</p>
-                <iframe 
-                    src="https://drive.google.com/embeddedfolderview?id=1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP#list" 
-                    width="100%" 
-                    height="320" 
-                    frameborder="0" 
-                    style="border-radius: 8px; border: 1px solid rgba(39, 54, 79, 0.9); background: white; flex-grow: 1;">
-                </iframe>
             </article>
 
-            <article class="panel" style="justify-content: center; align-items: center; text-align: center;">
+            <article class="panel">
                 <h2>Mühendislik Odası</h2>
-                <p style="margin-bottom: 24px;">Anlık yardımlaşma, kod incelemeleri ve sınav dönemi stratejileri için topluluğumuza katıl.</p>
-                
-                <a href="#" style="background: #5865F2; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
-                    💬 Discord Sunucusuna Katıl
-                </a>
-                
-                <p style="font-size: 0.85rem; color: var(--muted); margin-top: 20px;">
-                    *Tarayıcı güvenlik kısıtlamaları nedeniyle anlık mesajlaşma süreci Discord platformu üzerinden yürütülmektedir.
-                </p>
-            </article>
+                <p>Bu bölüm artık çalışır yerel sohbet panosu. Aynı tarayıcıdaki sekmeler arasında anlık güncellenir.</p>
 
+                <div class="chat-shell">
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="control-row">
+                        <input id="chatName" type="text" placeholder="Isminiz">
+                    </div>
+                    <div class="control-row">
+                        <input id="chatInput" type="text" placeholder="Mesajinizi yazin...">
+                        <button id="sendChat" class="btn" type="button">Gonder</button>
+                        <button id="clearChat" class="btn warn" type="button">Temizle</button>
+                    </div>
+                    <p class="tiny">Not: Bu sohbet su an backend olmadan localStorage ile calisir.</p>
+                </div>
+            </article>
         </section>
     </main>
 
     <footer>
         <p>&copy; 2026 Halil Esen. Tüm hakları saklıdır.</p>
     </footer>
+
+    <script>
+        const STORAGE_KEY = 'he_notlar_state_v1';
+        const CHAT_KEY = 'he_chat_messages_v1';
+        const ADMIN_PIN = 'HE2026';
+
+        let adminUnlocked = false;
+
+        const galleryGrid = document.getElementById('galleryGrid');
+        const approvedFiles = document.getElementById('approvedFiles');
+        const pendingList = document.getElementById('pendingList');
+        const uploader = document.getElementById('uploader');
+        const addToQueue = document.getElementById('addToQueue');
+        const adminPin = document.getElementById('adminPin');
+        const unlockAdmin = document.getElementById('unlockAdmin');
+        const adminState = document.getElementById('adminState');
+
+        const chatMessagesEl = document.getElementById('chatMessages');
+        const chatName = document.getElementById('chatName');
+        const chatInput = document.getElementById('chatInput');
+        const sendChat = document.getElementById('sendChat');
+        const clearChat = document.getElementById('clearChat');
+
+        function getState() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { pending: [], approvedImages: [], approvedFiles: [] };
+            } catch (error) {
+                return { pending: [], approvedImages: [], approvedFiles: [] };
+            }
+        }
+
+        function saveState(state) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function fileToDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('Dosya okunamadi'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderState() {
+            const state = getState();
+
+            if (state.approvedImages.length === 0) {
+                galleryGrid.innerHTML = '<div class="empty-state">Henuz onayli gorsel yok.</div>';
+            } else {
+                galleryGrid.innerHTML = state.approvedImages.map((item) => (
+                    '<div class="gallery-item">' +
+                        '<img src="' + item.dataUrl + '" alt="Paylasilan gorsel">' +
+                        '<div class="meta">' +
+                            '<span>' + item.name + '</span>' +
+                            '<span>' + formatSize(item.size) + '</span>' +
+                        '</div>' +
+                    '</div>'
+                )).join('');
+            }
+
+            if (state.approvedFiles.length === 0) {
+                approvedFiles.innerHTML = '<div class="tiny">Henuz onayli dokuman yok.</div>';
+            } else {
+                approvedFiles.innerHTML = state.approvedFiles.map((item) => (
+                    '<div class="file-item">' +
+                        '<div class="file-info">' +
+                            '<div class="file-name">' + item.name + '</div>' +
+                            '<div class="tiny">' + formatSize(item.size) + '</div>' +
+                        '</div>' +
+                        '<a class="btn small" href="' + item.dataUrl + '" download="' + item.name + '">Indir</a>' +
+                    '</div>'
+                )).join('');
+            }
+
+            if (state.pending.length === 0) {
+                pendingList.innerHTML = '<div class="tiny">Onay bekleyen dosya yok.</div>';
+            } else {
+                pendingList.innerHTML = state.pending.map((item) => (
+                    '<div class="pending-item">' +
+                        '<div class="pending-info">' +
+                            '<div class="pending-name">' + item.name + '</div>' +
+                            '<div class="tiny">' + formatSize(item.size) + ' | ' + (item.isImage ? 'Gorsel' : 'Dokuman') + '</div>' +
+                        '</div>' +
+                        '<div class="control-row">' +
+                            '<button class="btn small" type="button" data-approve="' + item.id + '">Onayla</button>' +
+                            '<button class="btn small warn" type="button" data-reject="' + item.id + '">Reddet</button>' +
+                        '</div>' +
+                    '</div>'
+                )).join('');
+            }
+        }
+
+        async function addPendingFromInput() {
+            const files = Array.from(uploader.files || []);
+            if (files.length === 0) return;
+
+            const state = getState();
+            for (const file of files) {
+                const dataUrl = await fileToDataUrl(file);
+                state.pending.unshift({
+                    id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+                    name: file.name,
+                    size: file.size,
+                    isImage: file.type.startsWith('image/'),
+                    dataUrl,
+                    createdAt: Date.now(),
+                });
+            }
+            saveState(state);
+            uploader.value = '';
+            renderState();
+        }
+
+        function approveItem(id) {
+            if (!adminUnlocked) {
+                alert('Onay islemi icin once yonetici kilidini acman gerekiyor.');
+                return;
+            }
+
+            const state = getState();
+            const index = state.pending.findIndex((item) => item.id === id);
+            if (index < 0) return;
+
+            const item = state.pending.splice(index, 1)[0];
+            if (item.isImage) {
+                state.approvedImages.unshift(item);
+            } else {
+                state.approvedFiles.unshift(item);
+            }
+
+            saveState(state);
+            renderState();
+        }
+
+        function rejectItem(id) {
+            if (!adminUnlocked) {
+                alert('Reddetmek icin once yonetici kilidini acman gerekiyor.');
+                return;
+            }
+
+            const state = getState();
+            state.pending = state.pending.filter((item) => item.id !== id);
+            saveState(state);
+            renderState();
+        }
+
+        function updateAdminState() {
+            adminState.textContent = adminUnlocked
+                ? 'Durum: Acik (onay islemleri aktif)'
+                : 'Durum: Kilitli (onay islemleri kapali)';
+        }
+
+        function getMessages() {
+            try {
+                return JSON.parse(localStorage.getItem(CHAT_KEY)) || [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveMessages(messages) {
+            localStorage.setItem(CHAT_KEY, JSON.stringify(messages.slice(-80)));
+        }
+
+        function renderMessages() {
+            const messages = getMessages();
+            if (messages.length === 0) {
+                chatMessagesEl.innerHTML = '<div class="empty-state">Sohbet bos. Ilk mesaji sen gonder.</div>';
+                return;
+            }
+
+            chatMessagesEl.innerHTML = messages.map((msg) => {
+                const date = new Date(msg.time);
+                const timeLabel = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                return (
+                    '<div class="msg">' +
+                        '<div class="msg-head"><strong>' + msg.name + '</strong><span>' + timeLabel + '</span></div>' +
+                        '<div class="msg-text">' + msg.text + '</div>' +
+                    '</div>'
+                );
+            }).join('');
+
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+
+        function sendMessage() {
+            const name = (chatName.value || 'Misafir').trim();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            const messages = getMessages();
+            messages.push({ name, text, time: Date.now() });
+            saveMessages(messages);
+            chatInput.value = '';
+            renderMessages();
+        }
+
+        addToQueue.addEventListener('click', () => {
+            addPendingFromInput().catch(() => alert('Dosya okunurken bir hata olustu.'));
+        });
+
+        unlockAdmin.addEventListener('click', () => {
+            if (adminPin.value === ADMIN_PIN) {
+                adminUnlocked = true;
+                updateAdminState();
+                alert('Yonetici kilidi acildi. Artik dosyalari onaylayabilirsin.');
+            } else {
+                alert('PIN yanlis.');
+            }
+        });
+
+        pendingList.addEventListener('click', (event) => {
+            const approveId = event.target.getAttribute('data-approve');
+            const rejectId = event.target.getAttribute('data-reject');
+            if (approveId) approveItem(approveId);
+            if (rejectId) rejectItem(rejectId);
+        });
+
+        sendChat.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') sendMessage();
+        });
+
+        clearChat.addEventListener('click', () => {
+            if (!adminUnlocked) {
+                alert('Sohbet temizleme icin yonetici kilidini acman gerekiyor.');
+                return;
+            }
+            saveMessages([]);
+            renderMessages();
+        });
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === CHAT_KEY) renderMessages();
+            if (event.key === STORAGE_KEY) renderState();
+        });
+
+        updateAdminState();
+        renderState();
+        renderMessages();
+    </script>
 </body>
 </html>
