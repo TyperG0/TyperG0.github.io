@@ -249,7 +249,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         // Halil, senin Firebase anahtarların buraya monte edildi!
         const firebaseConfig = {
@@ -265,9 +265,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const chatRef = ref(db, "messages");
+        const chatBox = document.getElementById("chat-box");
 
-        // Akademik arsiv (chat'ten bagimsiz, local calisir)
-        const archiveKey = "he_academic_archive_v2";
+        // Akademik arsiv (Firebase tabanli, tum kullanicilar icin ortak)
         const archiveUploader = document.getElementById("archiveUploader");
         const archiveGallery = document.getElementById("archiveGallery");
         const archiveFiles = document.getElementById("archiveFiles");
@@ -275,19 +275,19 @@
         const archiveAdminPin = document.getElementById("archiveAdminPin");
         const unlockArchiveAdmin = document.getElementById("unlockArchiveAdmin");
         const archiveAdminState = document.getElementById("archiveAdminState");
+        const archiveRootRef = ref(db, "archive");
         let archiveAdminUnlocked = false;
+        let archiveState = { pending: {}, images: {}, files: {} };
 
-        function getArchiveState() {
-            try {
-                const parsed = JSON.parse(localStorage.getItem(archiveKey));
-                return parsed || { pending: [], images: [], files: [] };
-            } catch (e) {
-                return { pending: [], images: [], files: [] };
+        function normalizeArchiveState(raw) {
+            if (!raw || typeof raw !== "object") {
+                return { pending: {}, images: {}, files: {} };
             }
-        }
-
-        function saveArchiveState(state) {
-            localStorage.setItem(archiveKey, JSON.stringify(state));
+            return {
+                pending: raw.pending || {},
+                images: raw.images || {},
+                files: raw.files || {},
+            };
         }
 
         function formatBytes(size) {
@@ -306,29 +306,32 @@
         }
 
         function renderArchive() {
-            const state = getArchiveState();
+            const pendingEntries = Object.entries(archiveState.pending).reverse();
+            const imageEntries = Object.entries(archiveState.images).reverse();
+            const fileEntries = Object.entries(archiveState.files).reverse();
+
             archiveAdminState.textContent = archiveAdminUnlocked
                 ? "Durum: Açık (onay/silme aktif)"
                 : "Durum: Kilitli (onay/silme kapalı)";
 
-            if (!state.images.length) {
+            if (!imageEntries.length) {
                 archiveGallery.innerHTML = '<div class="archive-empty">Henüz görsel yok. Dosya Seç ile yükleyebilirsin.</div>';
             } else {
-                archiveGallery.innerHTML = state.images.map((item, index) => (
+                archiveGallery.innerHTML = imageEntries.map(([key, item]) => (
                     '<div class="archive-item">' +
                         '<img src="' + item.data + '" alt="Arsiv gorseli">' +
                         '<div class="archive-meta"><span>' + item.name + '</span><span>' + formatBytes(item.size) + '</span></div>' +
                         (archiveAdminUnlocked
-                            ? '<div style="padding:0 6px 6px;"><button class="archive-btn" style="background:#ef4444; padding:4px 8px; font-size:0.72rem;" data-remove-image="' + index + '">Sil</button></div>'
+                            ? '<div style="padding:0 6px 6px;"><button class="archive-btn" style="background:#ef4444; padding:4px 8px; font-size:0.72rem;" data-remove-image="' + key + '">Sil</button></div>'
                             : '') +
                     '</div>'
                 )).join('');
             }
 
-            if (!state.files.length) {
+            if (!fileEntries.length) {
                 archiveFiles.innerHTML = '<div class="archive-empty">Henüz dosya yok. Dosya Seç ile ekleyebilirsin.</div>';
             } else {
-                archiveFiles.innerHTML = state.files.map((item, index) => (
+                archiveFiles.innerHTML = fileEntries.map(([key, item]) => (
                     '<div class="archive-file">' +
                         '<div style="min-width:0;">' +
                             '<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">' + item.name + '</div>' +
@@ -337,17 +340,17 @@
                         '<div style="display:flex; gap:6px;">' +
                             '<a class="archive-btn" style="padding:5px 8px; font-size:0.72rem;" href="' + item.data + '" download="' + item.name + '">İndir</a>' +
                             (archiveAdminUnlocked
-                                ? '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-remove-file="' + index + '">Sil</button>'
+                                ? '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-remove-file="' + key + '">Sil</button>'
                                 : '') +
                         '</div>' +
                     '</div>'
                 )).join('');
             }
 
-            if (!state.pending.length) {
+            if (!pendingEntries.length) {
                 archivePending.innerHTML = '<div class="archive-empty">Onay bekleyen dosya yok.</div>';
             } else {
-                archivePending.innerHTML = state.pending.map((item, index) => (
+                archivePending.innerHTML = pendingEntries.map(([key, item]) => (
                     '<div class="archive-pending">' +
                         '<div style="min-width:0;">' +
                             '<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:190px;">' + item.name + '</div>' +
@@ -355,8 +358,8 @@
                         '</div>' +
                         (archiveAdminUnlocked
                             ? '<div style="display:flex; gap:6px;">' +
-                                '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#0f766e;" data-approve-item="' + index + '">Onayla</button>' +
-                                '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-reject-item="' + index + '">Reddet</button>' +
+                                '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#0f766e;" data-approve-item="' + key + '">Onayla</button>' +
+                                '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-reject-item="' + key + '">Reddet</button>' +
                               '</div>'
                             : '<span style="font-size:0.72rem; color:var(--muted);">Yönetici Onayı Bekliyor</span>') +
                     '</div>'
@@ -368,45 +371,36 @@
             const files = Array.from(archiveUploader.files || []);
             if (!files.length) return;
 
-            const state = getArchiveState();
             for (const file of files) {
                 const data = await readAsDataUrl(file);
                 const item = { name: file.name, size: file.size, data, isImage: file.type.startsWith("image/") };
-                state.pending.unshift(item);
+                await push(ref(db, "archive/pending"), item);
             }
-            saveArchiveState(state);
             archiveUploader.value = "";
-            renderArchive();
             alert("Dosya onay kuyruğuna eklendi. Yayınlanması için yönetici onayı gerekli.");
         });
 
-        archiveGallery.addEventListener("click", (event) => {
+        archiveGallery.addEventListener("click", async (event) => {
             const idx = event.target.getAttribute("data-remove-image");
             if (idx === null) return;
             if (!archiveAdminUnlocked) {
                 alert("Bu işlem sadece yöneticiye açık.");
                 return;
             }
-            const state = getArchiveState();
-            state.images.splice(Number(idx), 1);
-            saveArchiveState(state);
-            renderArchive();
+            await update(archiveRootRef, { ["images/" + idx]: null });
         });
 
-        archiveFiles.addEventListener("click", (event) => {
+        archiveFiles.addEventListener("click", async (event) => {
             const idx = event.target.getAttribute("data-remove-file");
             if (idx === null) return;
             if (!archiveAdminUnlocked) {
                 alert("Bu işlem sadece yöneticiye açık.");
                 return;
             }
-            const state = getArchiveState();
-            state.files.splice(Number(idx), 1);
-            saveArchiveState(state);
-            renderArchive();
+            await update(archiveRootRef, { ["files/" + idx]: null });
         });
 
-        archivePending.addEventListener("click", (event) => {
+        archivePending.addEventListener("click", async (event) => {
             const approveIdx = event.target.getAttribute("data-approve-item");
             const rejectIdx = event.target.getAttribute("data-reject-item");
             if (approveIdx === null && rejectIdx === null) return;
@@ -416,22 +410,20 @@
                 return;
             }
 
-            const state = getArchiveState();
-
             if (approveIdx !== null) {
-                const item = state.pending.splice(Number(approveIdx), 1)[0];
+                const item = archiveState.pending[approveIdx];
                 if (item) {
-                    if (item.isImage) state.images.unshift(item);
-                    else state.files.unshift(item);
+                    const targetPath = item.isImage ? "images/" + approveIdx : "files/" + approveIdx;
+                    await update(archiveRootRef, {
+                        [targetPath]: item,
+                        ["pending/" + approveIdx]: null,
+                    });
                 }
             }
 
             if (rejectIdx !== null) {
-                state.pending.splice(Number(rejectIdx), 1);
+                await update(archiveRootRef, { ["pending/" + rejectIdx]: null });
             }
-
-            saveArchiveState(state);
-            renderArchive();
         });
 
         unlockArchiveAdmin.addEventListener("click", () => {
@@ -442,6 +434,11 @@
             } else {
                 alert("Hatalı PIN!");
             }
+        });
+
+        onValue(archiveRootRef, (snapshot) => {
+            archiveState = normalizeArchiveState(snapshot.val());
+            renderArchive();
         });
 
         // Mesaj Gönderme Fonksiyonu
@@ -458,15 +455,53 @@
         // Sayfa açıldığında ismi hatırla
         document.getElementById("userName").value = localStorage.getItem("he_chat_name") || "";
 
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
         // Mesajları Dinleme (Gerçek Zamanlı)
-        onChildAdded(chatRef, (snapshot) => {
-            const data = snapshot.val();
-            const chatBox = document.getElementById("chat-box");
-            const msgDiv = document.createElement("div");
-            msgDiv.className = "msg";
-            msgDiv.innerHTML = `<b>${data.name}</b> ${data.text}`;
-            chatBox.appendChild(msgDiv);
+        onValue(chatRef, (snapshot) => {
+            const value = snapshot.val() || {};
+            const messages = Object.entries(value).sort((a, b) => {
+                const aTime = a[1]?.time || 0;
+                const bTime = b[1]?.time || 0;
+                return aTime - bTime;
+            });
+
+            if (!messages.length) {
+                chatBox.innerHTML = '<div class="archive-empty">Henüz mesaj yok.</div>';
+                return;
+            }
+
+            chatBox.innerHTML = messages.map(([key, data]) => (
+                '<div class="msg">' +
+                    '<b>' + escapeHtml(data?.name || 'Misafir') + '</b>' +
+                    '<div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">' +
+                        '<span style="word-break:break-word;">' + escapeHtml(data?.text || '') + '</span>' +
+                        '<button data-delete-msg="' + key + '" style="padding:4px 8px; font-size:0.7rem; background:#ef4444; border:none; border-radius:6px; color:#fff; cursor:pointer;">Sil</button>' +
+                    '</div>' +
+                '</div>'
+            )).join('');
+
             chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        chatBox.addEventListener("click", async (event) => {
+            const msgKey = event.target.getAttribute("data-delete-msg");
+            if (!msgKey) return;
+
+            const pin = document.getElementById("adminPin").value;
+            if (pin !== "HE2026") {
+                alert("Tek mesaj silmek için yönetici PIN gerekli.");
+                return;
+            }
+
+            await update(ref(db, "messages"), { [msgKey]: null });
         });
 
         // Sohbeti Temizleme (Yönetici)
