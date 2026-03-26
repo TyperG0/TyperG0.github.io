@@ -267,6 +267,8 @@
         const db = getDatabase(app);
         const chatRef = ref(db, "messages");
         const chatBox = document.getElementById("chat-box");
+        const chatAdminPinInput = document.getElementById("adminPin");
+        let latestChatMessages = [];
 
         // Akademik arsiv (Firebase tabanli, tum kullanicilar icin ortak)
         const archiveUploader = document.getElementById("archiveUploader");
@@ -492,6 +494,32 @@
                 .replaceAll("'", "&#39;");
         }
 
+        function isChatAdmin() {
+            return chatAdminPinInput.value === "HE2026";
+        }
+
+        function renderChatMessages(messages) {
+            if (!messages.length) {
+                chatBox.innerHTML = '<div class="archive-empty">Henüz mesaj yok.</div>';
+                return;
+            }
+
+            const showDelete = isChatAdmin();
+            chatBox.innerHTML = messages.map(([key, data]) => (
+                '<div class="msg">' +
+                    '<b>' + escapeHtml(data?.name || 'Misafir') + '</b>' +
+                    '<div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">' +
+                        '<span style="word-break:break-word;">' + escapeHtml(data?.text || '') + '</span>' +
+                        (showDelete
+                            ? '<button data-delete-msg="' + key + '" style="padding:4px 8px; font-size:0.7rem; background:#ef4444; border:none; border-radius:6px; color:#fff; cursor:pointer;">Sil</button>'
+                            : '') +
+                    '</div>' +
+                '</div>'
+            )).join('');
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
         // Mesajları Dinleme (Gerçek Zamanlı)
         onValue(chatRef, (snapshot) => {
             const value = snapshot.val() || {};
@@ -500,23 +528,12 @@
                 const bTime = b[1]?.time || 0;
                 return aTime - bTime;
             });
+            latestChatMessages = messages;
+            renderChatMessages(latestChatMessages);
+        });
 
-            if (!messages.length) {
-                chatBox.innerHTML = '<div class="archive-empty">Henüz mesaj yok.</div>';
-                return;
-            }
-
-            chatBox.innerHTML = messages.map(([key, data]) => (
-                '<div class="msg">' +
-                    '<b>' + escapeHtml(data?.name || 'Misafir') + '</b>' +
-                    '<div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">' +
-                        '<span style="word-break:break-word;">' + escapeHtml(data?.text || '') + '</span>' +
-                        '<button data-delete-msg="' + key + '" style="padding:4px 8px; font-size:0.7rem; background:#ef4444; border:none; border-radius:6px; color:#fff; cursor:pointer;">Sil</button>' +
-                    '</div>' +
-                '</div>'
-            )).join('');
-
-            chatBox.scrollTop = chatBox.scrollHeight;
+        chatAdminPinInput.addEventListener("input", () => {
+            renderChatMessages(latestChatMessages);
         });
 
         chatBox.addEventListener("click", async (event) => {
