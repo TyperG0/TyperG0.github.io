@@ -40,8 +40,114 @@
         .admin-zone { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; gap: 5px; align-items: center; }
         .admin-zone input { padding: 5px; font-size: 0.8rem; width: 80px; }
 
+        .archive-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .archive-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .archive-btn {
+            text-decoration: none;
+            color: #fff;
+            background: #2563eb;
+            border: 1px solid rgba(39, 54, 79, 0.9);
+            border-radius: 7px;
+            padding: 7px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .archive-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 10px;
+            min-height: 320px;
+        }
+
+        .archive-box {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            overflow: auto;
+        }
+
+        .archive-box h3 {
+            margin: 0 0 8px;
+            font-size: 0.92rem;
+            color: var(--cyan);
+        }
+
+        .archive-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .archive-item {
+            border: 1px solid rgba(39, 54, 79, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0e1728;
+        }
+
+        .archive-item img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .archive-meta {
+            padding: 6px;
+            font-size: 0.72rem;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .archive-file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(39, 54, 79, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #0e1728;
+            font-size: 0.8rem;
+        }
+
+        .archive-empty {
+            border: 1px dashed rgba(59, 130, 246, 0.45);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.84rem;
+        }
+
+        #archiveUploader {
+            width: 100%;
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 900px) { .panel-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) {
+            .panel-grid { grid-template-columns: 1fr; }
+            .archive-grid { grid-template-columns: 1fr; }
+            .archive-gallery { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -64,11 +170,27 @@
 
         <div class="panel-grid">
             <section class="panel">
-                <div style="display:flex; justify-content: space-between; align-items: center;">
+                <div class="archive-top">
                     <h2>Akademik Arşiv</h2>
-                    <a href="https://drive.google.com/drive/folders/1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP" target="_blank" style="color:var(--cyan); text-decoration:none; font-size:0.85rem; font-weight:bold;">+ Dosya Yükle</a>
+                    <div class="archive-actions">
+                        <a class="archive-btn" href="https://drive.google.com/drive/folders/1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP" target="_blank" rel="noopener">Drive Arşivine Git</a>
+                        <label class="archive-btn" for="archiveUploader">+ Dosya Seç</label>
+                    </div>
                 </div>
-                <iframe src="https://drive.google.com/embeddedfolderview?id=1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP#list" width="100%" height="400" frameborder="0" style="border-radius:8px; background:white;"></iframe>
+                <p style="margin-top:-4px; color:var(--muted); font-size:0.88rem;">Bu bölüm artık iframe'e bağlı değil. Yüklediğin içerikler tarayıcıda kalıcı arşivde tutulur.</p>
+
+                <input id="archiveUploader" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar" style="display:none;">
+
+                <div class="archive-grid">
+                    <div class="archive-box">
+                        <h3>Paylaşılan Görseller</h3>
+                        <div id="archiveGallery" class="archive-gallery"></div>
+                    </div>
+                    <div class="archive-box">
+                        <h3>Dosyalar</h3>
+                        <div id="archiveFiles"></div>
+                    </div>
+                </div>
             </section>
 
             <section class="panel">
@@ -107,6 +229,100 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const chatRef = ref(db, "messages");
+
+        // Akademik arsiv (chat'ten bagimsiz, local calisir)
+        const archiveKey = "he_academic_archive_v2";
+        const archiveUploader = document.getElementById("archiveUploader");
+        const archiveGallery = document.getElementById("archiveGallery");
+        const archiveFiles = document.getElementById("archiveFiles");
+
+        function getArchiveState() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(archiveKey));
+                return parsed || { images: [], files: [] };
+            } catch (e) {
+                return { images: [], files: [] };
+            }
+        }
+
+        function saveArchiveState(state) {
+            localStorage.setItem(archiveKey, JSON.stringify(state));
+        }
+
+        function formatBytes(size) {
+            if (size < 1024) return size + " B";
+            if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+            return (size / (1024 * 1024)).toFixed(2) + " MB";
+        }
+
+        function readAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Dosya okunamadi"));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderArchive() {
+            const state = getArchiveState();
+
+            if (!state.images.length) {
+                archiveGallery.innerHTML = '<div class="archive-empty">Henüz görsel yok. Dosya Seç ile yükleyebilirsin.</div>';
+            } else {
+                archiveGallery.innerHTML = state.images.map((item) => (
+                    '<div class="archive-item">' +
+                        '<img src="' + item.data + '" alt="Arsiv gorseli">' +
+                        '<div class="archive-meta"><span>' + item.name + '</span><span>' + formatBytes(item.size) + '</span></div>' +
+                    '</div>'
+                )).join('');
+            }
+
+            if (!state.files.length) {
+                archiveFiles.innerHTML = '<div class="archive-empty">Henüz dosya yok. Dosya Seç ile ekleyebilirsin.</div>';
+            } else {
+                archiveFiles.innerHTML = state.files.map((item, index) => (
+                    '<div class="archive-file">' +
+                        '<div style="min-width:0;">' +
+                            '<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">' + item.name + '</div>' +
+                            '<div style="font-size:0.72rem; color:var(--muted);">' + formatBytes(item.size) + '</div>' +
+                        '</div>' +
+                        '<div style="display:flex; gap:6px;">' +
+                            '<a class="archive-btn" style="padding:5px 8px; font-size:0.72rem;" href="' + item.data + '" download="' + item.name + '">İndir</a>' +
+                            '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-remove-file="' + index + '">Sil</button>' +
+                        '</div>' +
+                    '</div>'
+                )).join('');
+            }
+        }
+
+        archiveUploader.addEventListener("change", async () => {
+            const files = Array.from(archiveUploader.files || []);
+            if (!files.length) return;
+
+            const state = getArchiveState();
+            for (const file of files) {
+                const data = await readAsDataUrl(file);
+                const item = { name: file.name, size: file.size, data };
+                if (file.type.startsWith("image/")) {
+                    state.images.unshift(item);
+                } else {
+                    state.files.unshift(item);
+                }
+            }
+            saveArchiveState(state);
+            archiveUploader.value = "";
+            renderArchive();
+        });
+
+        archiveFiles.addEventListener("click", (event) => {
+            const idx = event.target.getAttribute("data-remove-file");
+            if (idx === null) return;
+            const state = getArchiveState();
+            state.files.splice(Number(idx), 1);
+            saveArchiveState(state);
+            renderArchive();
+        });
 
         // Mesaj Gönderme Fonksiyonu
         window.sendMessage = () => {
@@ -150,6 +366,8 @@
         document.getElementById("userMsg").addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
         });
+
+        renderArchive();
     </script>
 </body>
 </html>
