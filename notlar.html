@@ -392,12 +392,26 @@
         <p>&copy; 2026 Halil Esen. Tüm hakları saklıdır.</p>
     </footer>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+        import { getDatabase, ref, push, onValue, query, limitToLast, serverTimestamp, remove } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+
         const STORAGE_KEY = 'he_notlar_state_v1';
-        const CHAT_KEY = 'he_chat_messages_v1';
+        const CHAT_NAME_KEY = 'he_chat_name_v1';
         const ADMIN_PIN = 'HE2026';
 
+        // Firebase projesi olusturup asagidaki alanlari doldurdugunda chat global ve online olur.
+        const firebaseConfig = {
+            apiKey: '',
+            authDomain: '',
+            databaseURL: '',
+            projectId: '',
+            appId: '',
+        };
+
         let adminUnlocked = false;
+        let chatDb = null;
+        let chatRef = null;
 
         const galleryGrid = document.getElementById('galleryGrid');
         const approvedFiles = document.getElementById('approvedFiles');
@@ -413,6 +427,27 @@
         const chatInput = document.getElementById('chatInput');
         const sendChat = document.getElementById('sendChat');
         const clearChat = document.getElementById('clearChat');
+
+        chatName.value = localStorage.getItem(CHAT_NAME_KEY) || '';
+
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function isFirebaseConfigured() {
+            return Boolean(
+                firebaseConfig.apiKey &&
+                firebaseConfig.authDomain &&
+                firebaseConfig.databaseURL &&
+                firebaseConfig.projectId &&
+                firebaseConfig.appId
+            );
+        }
 
         function getState() {
             try {
@@ -451,7 +486,7 @@
                     '<div class="gallery-item">' +
                         '<img src="' + item.dataUrl + '" alt="Paylasilan gorsel">' +
                         '<div class="meta">' +
-                            '<span>' + item.name + '</span>' +
+                            '<span>' + escapeHtml(item.name) + '</span>' +
                             '<span>' + formatSize(item.size) + '</span>' +
                         '</div>' +
                     '</div>'
@@ -464,10 +499,10 @@
                 approvedFiles.innerHTML = state.approvedFiles.map((item) => (
                     '<div class="file-item">' +
                         '<div class="file-info">' +
-                            '<div class="file-name">' + item.name + '</div>' +
+                            '<div class="file-name">' + escapeHtml(item.name) + '</div>' +
                             '<div class="tiny">' + formatSize(item.size) + '</div>' +
                         '</div>' +
-                        '<a class="btn small" href="' + item.dataUrl + '" download="' + item.name + '">Indir</a>' +
+                        '<a class="btn small" href="' + item.dataUrl + '" download="' + escapeHtml(item.name) + '">Indir</a>' +
                     '</div>'
                 )).join('');
             }
@@ -478,7 +513,7 @@
                 pendingList.innerHTML = state.pending.map((item) => (
                     '<div class="pending-item">' +
                         '<div class="pending-info">' +
-                            '<div class="pending-name">' + item.name + '</div>' +
+                            '<div class="pending-name">' + escapeHtml(item.name) + '</div>' +
                             '<div class="tiny">' + formatSize(item.size) + ' | ' + (item.isImage ? 'Gorsel' : 'Dokuman') + '</div>' +
                         '</div>' +
                         '<div class="control-row">' +
@@ -550,32 +585,23 @@
                 : 'Durum: Kilitli (onay islemleri kapali)';
         }
 
-        function getMessages() {
-            try {
-                return JSON.parse(localStorage.getItem(CHAT_KEY)) || [];
-            } catch (error) {
-                return [];
-            }
+        function renderChatStatus(message) {
+            chatMessagesEl.innerHTML = '<div class="empty-state">' + message + '</div>';
         }
 
-        function saveMessages(messages) {
-            localStorage.setItem(CHAT_KEY, JSON.stringify(messages.slice(-80)));
-        }
-
-        function renderMessages() {
-            const messages = getMessages();
-            if (messages.length === 0) {
-                chatMessagesEl.innerHTML = '<div class="empty-state">Sohbet bos. Ilk mesaji sen gonder.</div>';
+        function renderMessages(messages) {
+            if (!messages.length) {
+                renderChatStatus('Sohbet bos. Ilk mesaji sen gonder.');
                 return;
             }
 
             chatMessagesEl.innerHTML = messages.map((msg) => {
-                const date = new Date(msg.time);
+                const date = new Date(typeof msg.time === 'number' ? msg.time : Date.now());
                 const timeLabel = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
                 return (
                     '<div class="msg">' +
-                        '<div class="msg-head"><strong>' + msg.name + '</strong><span>' + timeLabel + '</span></div>' +
-                        '<div class="msg-text">' + msg.text + '</div>' +
+                        '<div class="msg-head"><strong>' + escapeHtml(msg.name || 'Misafir') + '</strong><span>' + timeLabel + '</span></div>' +
+                        '<div class="msg-text">' + escapeHtml(msg.text || '') + '</div>' +
                     '</div>'
                 );
             }).join('');
@@ -583,16 +609,60 @@
             chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
         }
 
-        function sendMessage() {
+        function startRealtimeChat() {
+            if (!isFirebaseConfigured()) {
+                renderChatStatus('Chat online aktif degil. Firebase ayarlari girilmedigi icin sadece dosya paneli calisiyor.');
+                return;
+            }
+
+            const app = initializeApp(firebaseConfig);
+            chatDb = getDatabase(app);
+            chatRef = ref(chatDb, 'siteChat/messages');
+
+            const chatQuery = query(chatRef, limitToLast(100));
+            onValue(chatQuery, (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    renderMessages([]);
+                    return;
+                }
+
+                const messages = Object.values(data)
+                    .map((item) => ({
+                        name: item.name || 'Misafir',
+                        text: item.text || '',
+                        time: typeof item.time === 'number' ? item.time : Date.now(),
+                    }))
+                    .sort((a, b) => a.time - b.time);
+
+                renderMessages(messages);
+            }, () => {
+                renderChatStatus('Chat baglantisi kurulurken hata olustu. Firebase Realtime Database kurallarini kontrol et.');
+            });
+        }
+
+        async function sendMessage() {
+            if (!chatRef) {
+                alert('Chat online aktif degil. Önce Firebase ayarlarini girmen gerekiyor.');
+                return;
+            }
+
             const name = (chatName.value || 'Misafir').trim();
             const text = chatInput.value.trim();
             if (!text) return;
 
-            const messages = getMessages();
-            messages.push({ name, text, time: Date.now() });
-            saveMessages(messages);
-            chatInput.value = '';
-            renderMessages();
+            localStorage.setItem(CHAT_NAME_KEY, name);
+
+            try {
+                await push(chatRef, {
+                    name,
+                    text,
+                    time: serverTimestamp(),
+                });
+                chatInput.value = '';
+            } catch (error) {
+                alert('Mesaj gonderilemedi. Firebase ayarini veya internet baglantini kontrol et.');
+            }
         }
 
         addToQueue.addEventListener('click', () => {
@@ -616,28 +686,36 @@
             if (rejectId) rejectItem(rejectId);
         });
 
-        sendChat.addEventListener('click', sendMessage);
+        sendChat.addEventListener('click', () => {
+            sendMessage();
+        });
         chatInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') sendMessage();
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
         });
 
-        clearChat.addEventListener('click', () => {
+        clearChat.addEventListener('click', async () => {
             if (!adminUnlocked) {
                 alert('Sohbet temizleme icin yonetici kilidini acman gerekiyor.');
                 return;
             }
-            saveMessages([]);
-            renderMessages();
-        });
 
-        window.addEventListener('storage', (event) => {
-            if (event.key === CHAT_KEY) renderMessages();
-            if (event.key === STORAGE_KEY) renderState();
+            if (!chatRef) {
+                alert('Chat online aktif degil.');
+                return;
+            }
+
+            try {
+                await remove(chatRef);
+            } catch (error) {
+                alert('Sohbet temizlenemedi. Database izinlerini kontrol et.');
+            }
         });
 
         updateAdminState();
         renderState();
-        renderMessages();
+        startRealtimeChat();
     </script>
 </body>
 </html>
