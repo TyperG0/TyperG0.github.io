@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halil Esen | Notlar</title>
+    <style>
+        :root {
+            --bg: #090d17;
+            --surface: #121a29;
+            --surface-2: #162235;
+            --text: #e5edf7;
+            --muted: #9fb0c9;
+            --line: #27364f;
+            --blue: #3b82f6;
+            --red: #ef4444;
+            --cyan: #22d3ee;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 12% 10%, rgba(59, 130, 246, 0.18), transparent 30%),
+                radial-gradient(circle at 86% 20%, rgba(239, 68, 68, 0.16), transparent 34%),
+                var(--bg);
+            min-height: 100vh;
+        }
+
+        .container { width: min(1100px, 92%); margin: 0 auto; }
+
+        .nav-wrap {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            background: rgba(9, 13, 23, 0.86);
+            border-bottom: 1px solid rgba(39, 54, 79, 0.7);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 0;
+        }
+
+        .brand { font-weight: 700; letter-spacing: 0.6px; }
+
+        .menu {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--text);
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            transition: 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            border-color: var(--line);
+            background: rgba(22, 34, 53, 0.8);
+        }
+
+        main { padding: 2.8rem 0 2.8rem; }
+
+        .hero {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+            background: linear-gradient(135deg, rgba(18, 26, 41, 0.95), rgba(10, 19, 34, 0.92));
+            box-shadow: 0 16px 44px rgba(3, 7, 18, 0.45);
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 { margin: 0; }
+        .hero p { margin: 0.5rem 0 0; color: var(--muted); }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .panel {
+            background: linear-gradient(180deg, var(--surface), var(--surface-2));
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 12px 28px rgba(2, 6, 20, 0.36);
+            display: grid;
+            gap: 12px;
+            min-height: 420px;
+        }
+
+        .panel h2 { margin: 0; font-size: 1.2rem; }
+        .panel p { margin: 0; color: var(--muted); }
+
+        .embed-placeholder {
+            width: 100%;
+            min-height: 300px;
+            border: 1px dashed rgba(59, 130, 246, 0.6);
+            border-radius: 10px;
+            background: rgba(11, 18, 32, 0.72);
+            color: #bcd2f4;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        iframe.embed-placeholder {
+            min-height: 320px;
+            border-style: solid;
+            border-color: rgba(39, 54, 79, 0.9);
+        }
+
+        .placeholder-note {
+            color: #93a9c8;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #8da0bd;
+            border-top: 1px solid rgba(39, 54, 79, 0.8);
+            background: rgba(9, 13, 23, 0.7);
+        }
+
+        @media (max-width: 900px) {
+            nav { flex-direction: column; align-items: flex-start; }
+            .panel-grid { grid-template-columns: 1fr; }
+            .panel { min-height: 360px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-wrap">
+        <nav class="container" aria-label="Ana menü">
+            <div class="brand">HE | Portfolio</div>
+            <div class="menu">
+                <a href="index.html">Ana Sayfa</a>
+                <a href="projeler.html">Projelerim</a>
+                <a href="hakkimda.html">Hakkımda</a>
+                <a class="active" href="notlar.html">Notlar</a>
+            </div>
+        </nav>
+    </div>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Notlar ve Chat</h1>
+            <p>Akademik arşivini ve mühendislik sohbet alanını tek ekranda yönet.</p>
+        </section>
+
+        <section class="panel-grid">
+            <article class="panel">
+                <h2>Akademik Arşiv (Google Drive)</h2>
+                <p>Ders notları ve projeler için ortak dosya paylaşım alanı.</p>
+                <iframe
+                    class="embed-placeholder"
+                    src="about:blank"
+                    title="Google Drive Arşiv Placeholder"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                ></iframe>
+                <div class="placeholder-note">Google Drive klasör gömme linkini bu iframe src alanına ekleyebilirsin.</div>
+            </article>
+
+            <article class="panel">
+                <h2>Mühendislik Odası (Canlı Sohbet)</h2>
+                <p>Fikir alışverişi ve anlık yardımlaşma alanı.</p>
+                <div class="embed-placeholder" id="chatPlaceholder">
+                    Buraya Cbox / Chatango gibi chat widget kodunu veya iframe bağlantısını ekleyebilirsin.
+                </div>
+                <iframe
+                    class="embed-placeholder"
+                    src="about:blank"
+                    title="Canlı Sohbet Placeholder"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                ></iframe>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Halil Esen. Tüm hakları saklıdır.</p>
+    </footer>
+</body>
+</html>

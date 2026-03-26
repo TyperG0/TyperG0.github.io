@@ -91,7 +91,7 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 16px;
             margin-top: 1rem;
         }
@@ -164,6 +164,7 @@
                 <a href="index.html">Ana Sayfa</a>
                 <a class="active" href="projeler.html">Projelerim</a>
                 <a href="hakkimda.html">Hakkımda</a>
+                <a href="notlar.html">Notlar</a>
             </div>
         </nav>
     </div>
@@ -179,35 +180,25 @@
         <section class="dashboard-grid" aria-label="Detaylı proje kartları">
             <article class="project-card">
                 <h3>Teknofest Savaşan İHA (kaDrone)</h3>
-                <p>Sabit kanatlı insansız hava aracı için ROS mimarisi ve Gazebo ortamında otonom uçuş simülasyonları ve yazılım entegrasyonu.</p>
+                <p>Sabit kanatlı insansız hava aracı projesinde Görüntü İşleme ve Haberleşme sorumlusu olarak görev alıyorum. Jetson Xavier NX ve Pixhawk Orange Cube donanımları üzerinde sistem entegrasyonu ve PX4 uçuş kontrol yazılımı ile veri haberleşmesi altyapısının kurulması.</p>
                 <div class="chip-row">
-                    <span class="chip">ROS</span>
-                    <span class="chip">Gazebo</span>
-                    <span class="chip">Otonom Uçuş</span>
+                    <span class="chip">PX4</span>
+                    <span class="chip">Jetson Xavier NX</span>
+                    <span class="chip">Orange Cube</span>
+                    <span class="chip">Görüntü İşleme</span>
                 </div>
                 <a class="github-btn" href="#" aria-label="kaDrone GitHub linki">GitHub Linki</a>
             </article>
 
             <article class="project-card">
                 <h3>Görüntü İşleme ile Hedef Takibi</h3>
-                <p>Python ve OpenCV kullanılarak kamera verisi üzerinden anlık obje tespiti.</p>
+                <p>Otonom insansız platformlar için Python ve OpenCV kullanılarak taktiksel hareketli nesne tespiti, sürekli hedef takibi ve görüntü üzerinden anlamlandırma algoritmaları geliştirilmesi.</p>
                 <div class="chip-row">
                     <span class="chip">Python</span>
                     <span class="chip">OpenCV</span>
                     <span class="chip">Takip Algoritması</span>
                 </div>
                 <a class="github-btn" href="#" aria-label="Hedef Takibi GitHub linki">GitHub Linki</a>
-            </article>
-
-            <article class="project-card">
-                <h3>Gömülü Sistemler</h3>
-                <p>Arduino ile sensör okuma, RFID geçiş kontrolü ve endüstriyel kepenk otomasyonu arayüzü.</p>
-                <div class="chip-row">
-                    <span class="chip">Arduino</span>
-                    <span class="chip">RFID</span>
-                    <span class="chip">Endüstriyel Otomasyon</span>
-                </div>
-                <a class="github-btn" href="#" aria-label="Gomulu Sistemler GitHub linki">GitHub Linki</a>
             </article>
         </section>
     </main>
