@@ -200,13 +200,14 @@
                 <div class="archive-top">
                     <h2>Akademik Arşiv</h2>
                     <div class="archive-actions">
-                        <a class="archive-btn" href="https://drive.google.com/drive/folders/1nOaLwK8ws5KhppWYdoOpH9v_KpPAPnxP" target="_blank" rel="noopener">Drive Arşivine Git</a>
                         <label class="archive-btn" for="archiveUploader">+ Dosya Seç</label>
+                        <button id="sendArchiveUpload" class="archive-btn" type="button">Yüklemeye Gönder</button>
                     </div>
                 </div>
-                <p style="margin-top:-4px; color:var(--muted); font-size:0.88rem;">Bu bölüm artık iframe'e bağlı değil. Yüklediğin içerikler tarayıcıda kalıcı arşivde tutulur.</p>
+                <p style="margin-top:-4px; color:var(--muted); font-size:0.88rem;">Kullanıcılar sadece onaylı içerikleri görür ve indirir. Yüklemeler önce yönetici onayına düşer.</p>
 
                 <input id="archiveUploader" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar" style="display:none;">
+                <div id="archiveStatus" class="status-msg">Durum: Dosya seçip Yüklemeye Gönder butonuna bas.</div>
 
                 <div class="archive-admin">
                     <span style="font-size:0.8rem; color:var(--muted);">Arşiv Yönetici:</span>
@@ -269,6 +270,8 @@
 
         // Akademik arsiv (Firebase tabanli, tum kullanicilar icin ortak)
         const archiveUploader = document.getElementById("archiveUploader");
+        const sendArchiveUpload = document.getElementById("sendArchiveUpload");
+        const archiveStatus = document.getElementById("archiveStatus");
         const archiveGallery = document.getElementById("archiveGallery");
         const archiveFiles = document.getElementById("archiveFiles");
         const archivePending = document.getElementById("archivePending");
@@ -347,6 +350,11 @@
                 )).join('');
             }
 
+            if (!archiveAdminUnlocked) {
+                archivePending.innerHTML = '<div class="archive-empty">Onay listesi sadece yöneticiye görünür.</div>';
+                return;
+            }
+
             if (!pendingEntries.length) {
                 archivePending.innerHTML = '<div class="archive-empty">Onay bekleyen dosya yok.</div>';
             } else {
@@ -367,17 +375,35 @@
             }
         }
 
-        archiveUploader.addEventListener("change", async () => {
+        archiveUploader.addEventListener("change", () => {
             const files = Array.from(archiveUploader.files || []);
-            if (!files.length) return;
-
-            for (const file of files) {
-                const data = await readAsDataUrl(file);
-                const item = { name: file.name, size: file.size, data, isImage: file.type.startsWith("image/") };
-                await push(ref(db, "archive/pending"), item);
+            if (!files.length) {
+                archiveStatus.textContent = "Durum: Dosya seçilmedi.";
+                return;
             }
-            archiveUploader.value = "";
-            alert("Dosya onay kuyruğuna eklendi. Yayınlanması için yönetici onayı gerekli.");
+            archiveStatus.textContent = "Durum: " + files.length + " dosya seçildi. Yüklemeye Gönder ile kuyruğa yolla.";
+        });
+
+        sendArchiveUpload.addEventListener("click", async () => {
+            const files = Array.from(archiveUploader.files || []);
+            if (!files.length) {
+                archiveStatus.textContent = "Durum: Önce dosya seçmelisin.";
+                return;
+            }
+
+            archiveStatus.textContent = "Durum: Dosyalar kuyruğa gönderiliyor...";
+            try {
+                for (const file of files) {
+                    const data = await readAsDataUrl(file);
+                    const item = { name: file.name, size: file.size, data, isImage: file.type.startsWith("image/") };
+                    await push(ref(db, "archive/pending"), item);
+                }
+                archiveUploader.value = "";
+                archiveStatus.textContent = "Durum: Dosyalar onay kuyruğuna gönderildi.";
+            } catch (error) {
+                archiveStatus.textContent = "Hata: Kuyruğa yazılamadı. Firebase Rules izinlerini kontrol et.";
+                alert("Yükleme başarısız. Firebase Realtime Database Rules içinde archive/pending için yazma izni gerekli.");
+            }
         });
 
         archiveGallery.addEventListener("click", async (event) => {
@@ -429,9 +455,11 @@
         unlockArchiveAdmin.addEventListener("click", () => {
             if (archiveAdminPin.value === "HE2026") {
                 archiveAdminUnlocked = true;
+                archiveStatus.textContent = "Durum: Yönetici modu açık. Onay/Sil işlemleri aktif.";
                 renderArchive();
                 alert("Arşiv yönetici modu açıldı.");
             } else {
+                archiveStatus.textContent = "Durum: Yönetici PIN hatalı.";
                 alert("Hatalı PIN!");
             }
         });
