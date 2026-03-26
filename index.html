@@ -89,41 +89,22 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 20px rgba(15, 118, 110, 0.32);
         }
-        .game-panel {
-            margin-top: 16px;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 14px;
-            background: #f8fafc;
-            display: none;
-        }
-        .game-panel.active {
-            display: block;
-        }
-        .game-stats {
+        .game-actions {
             display: flex;
             gap: 14px;
             flex-wrap: wrap;
-            margin: 10px 0;
-            color: #334155;
+            margin-top: 12px;
         }
-        .coin {
-            width: 110px;
-            height: 110px;
-            border-radius: 999px;
-            border: 0;
-            font-size: 1rem;
+        .secondary-link {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            border: 1px solid var(--line);
+            padding: 10px 14px;
+            border-radius: 10px;
             font-weight: 700;
-            color: #111827;
-            background: radial-gradient(circle at 30% 25%, #fde68a, #f59e0b);
-            box-shadow: 0 8px 18px rgba(217, 119, 6, 0.35);
-            margin: 6px 0 10px;
-        }
-        .coin:hover {
-            transform: scale(1.03);
-        }
-        .coin:active {
-            transform: scale(0.98);
+            color: #0f172a;
+            background: #ffffff;
         }
         footer {
             text-align: center;
@@ -138,10 +119,6 @@
             }
             header h1 {
                 font-size: 2rem;
-            }
-            .coin {
-                width: 92px;
-                height: 92px;
             }
         }
     </style>
@@ -194,20 +171,11 @@
 
         <h2 class="section-title">Eğlence Alanı</h2>
         <div class="card">
-            <h3>🎮 Mini Oyun</h3>
-            <p>GAME butonuna tıkla, 15 saniyede olabildiğince çok puan topla.</p>
-            <button id="gameToggle">GAME</button>
-
-            <div id="gamePanel" class="game-panel" aria-live="polite">
-                <p>Kural: Başlat'a bas, sonra altın para butonuna hızlıca tıklayarak puan kazan.</p>
-                <div class="game-stats">
-                    <strong>Puan: <span id="score">0</span></strong>
-                    <strong>Süre: <span id="time">15</span>s</strong>
-                    <strong>En İyi: <span id="best">0</span></strong>
-                </div>
-                <button id="startGame">Başlat</button>
-                <button id="coinBtn" class="coin" disabled>+1</button>
-                <p id="gameMessage">GAME butonuyla paneli açtın. Başlat ile oyuna geçebilirsin.</p>
+            <h3>🎮 Meteor Dash Arena</h3>
+            <p>GAME butonu ayrı bir pencerede yüksek tempolu oyunu açar. W/S veya ok tuşlarıyla hareket et, meteorlerden kaç, enerji kürelerini topla ve en yüksek skoru yap.</p>
+            <div class="game-actions">
+                <button id="openGameWindow">GAME</button>
+                <a class="secondary-link" href="game.html" target="_blank" rel="noopener">Yeni Sekmede Aç</a>
             </div>
         </div>
     </div>
@@ -217,62 +185,18 @@
     </footer>
 
     <script>
-        const gameToggle = document.getElementById('gameToggle');
-        const gamePanel = document.getElementById('gamePanel');
-        const startGame = document.getElementById('startGame');
-        const coinBtn = document.getElementById('coinBtn');
-        const scoreEl = document.getElementById('score');
-        const timeEl = document.getElementById('time');
-        const bestEl = document.getElementById('best');
-        const gameMessage = document.getElementById('gameMessage');
+        const gameButton = document.getElementById('openGameWindow');
 
-        let score = 0;
-        let timeLeft = 15;
-        let bestScore = Number(localStorage.getItem('miniGameBest')) || 0;
-        let timer = null;
+        gameButton.addEventListener('click', () => {
+            const popup = window.open(
+                'game.html',
+                'meteor_dash_arena',
+                'width=1100,height=760,left=120,top=80,resizable=yes,scrollbars=yes'
+            );
 
-        bestEl.textContent = bestScore;
-
-        gameToggle.addEventListener('click', () => {
-            gamePanel.classList.toggle('active');
-            if (gamePanel.classList.contains('active')) {
-                gameMessage.textContent = 'Panel açıldı. Başlat ile oyunu başlat.';
+            if (!popup) {
+                alert('Tarayici popup penceresini engelledi. Lutfen "Yeni Sekmede Ac" baglantisini kullan.');
             }
-        });
-
-        coinBtn.addEventListener('click', () => {
-            if (timeLeft > 0) {
-                score += 1;
-                scoreEl.textContent = score;
-            }
-        });
-
-        startGame.addEventListener('click', () => {
-            clearInterval(timer);
-            score = 0;
-            timeLeft = 15;
-            scoreEl.textContent = score;
-            timeEl.textContent = timeLeft;
-            coinBtn.disabled = false;
-            gameMessage.textContent = 'Başladı! 15 saniye boyunca tıkla.';
-
-            timer = setInterval(() => {
-                timeLeft -= 1;
-                timeEl.textContent = timeLeft;
-
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    coinBtn.disabled = true;
-                    if (score > bestScore) {
-                        bestScore = score;
-                        localStorage.setItem('miniGameBest', String(bestScore));
-                        bestEl.textContent = bestScore;
-                        gameMessage.textContent = 'Süre bitti. Yeni rekor: ' + score + '!';
-                    } else {
-                        gameMessage.textContent = 'Süre bitti. Skorun: ' + score + '. Tekrar dene!';
-                    }
-                }
-            }, 1000);
         });
     </script>
 
