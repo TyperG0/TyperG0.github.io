@@ -5,26 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Halil Esen | Bilgisayar Mühendisi & Geliştirici</title>
     <style>
+        :root {
+            --bg: #f3f6fb;
+            --surface: #ffffff;
+            --ink: #1f2937;
+            --muted: #4b5563;
+            --brand: #0f766e;
+            --brand-strong: #115e59;
+            --accent: #d97706;
+            --line: #dbe3ee;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            background:
+                radial-gradient(circle at top right, #d7f3ef 0%, transparent 38%),
+                radial-gradient(circle at top left, #e8eefc 0%, transparent 30%),
+                var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
         }
         header {
-            background-color: #2c3e50;
+            background: linear-gradient(120deg, #0f172a, #1e293b 65%, #0f766e);
             color: #fff;
             padding: 3rem 0;
             text-align: center;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
         }
         header h1 {
             margin: 0;
             font-size: 2.5rem;
+            letter-spacing: 0.5px;
         }
         header p {
             font-size: 1.2rem;
-            color: #1abc9c;
+            color: #d1fae5;
         }
         .container {
             width: 80%;
@@ -33,9 +50,10 @@
             padding: 2rem 0;
         }
         .section-title {
-            border-bottom: 2px solid #1abc9c;
+            border-bottom: 2px solid var(--brand);
             padding-bottom: 10px;
             margin-bottom: 20px;
+            color: #111827;
         }
         .card-grid {
             display: grid;
@@ -43,21 +61,88 @@
             gap: 20px;
         }
         .card {
-            background: #fff;
+            background: var(--surface);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--line);
         }
         .card h3 {
-            color: #2c3e50;
+            color: #0f172a;
             margin-top: 0;
+        }
+        .card p {
+            color: var(--muted);
+        }
+        button {
+            background: linear-gradient(90deg, var(--brand), var(--brand-strong));
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25);
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(15, 118, 110, 0.32);
+        }
+        .game-panel {
+            margin-top: 16px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 14px;
+            background: #f8fafc;
+            display: none;
+        }
+        .game-panel.active {
+            display: block;
+        }
+        .game-stats {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            color: #334155;
+        }
+        .coin {
+            width: 110px;
+            height: 110px;
+            border-radius: 999px;
+            border: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            background: radial-gradient(circle at 30% 25%, #fde68a, #f59e0b);
+            box-shadow: 0 8px 18px rgba(217, 119, 6, 0.35);
+            margin: 6px 0 10px;
+        }
+        .coin:hover {
+            transform: scale(1.03);
+        }
+        .coin:active {
+            transform: scale(0.98);
         }
         footer {
             text-align: center;
             padding: 1rem;
-            background-color: #2c3e50;
+            background: #0f172a;
             color: #fff;
             margin-top: 2rem;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 92%;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+            .coin {
+                width: 92px;
+                height: 92px;
+            }
         }
     </style>
 </head>
@@ -106,11 +191,90 @@
                 <p>Arduino, servo motor ve LCD ekran kullanarak geliştirdiğim yetkilendirmeli kapı geçiş sistemi.</p>
             </div>
         </div>
+
+        <h2 class="section-title">Eğlence Alanı</h2>
+        <div class="card">
+            <h3>🎮 Mini Oyun</h3>
+            <p>GAME butonuna tıkla, 15 saniyede olabildiğince çok puan topla.</p>
+            <button id="gameToggle">GAME</button>
+
+            <div id="gamePanel" class="game-panel" aria-live="polite">
+                <p>Kural: Başlat'a bas, sonra altın para butonuna hızlıca tıklayarak puan kazan.</p>
+                <div class="game-stats">
+                    <strong>Puan: <span id="score">0</span></strong>
+                    <strong>Süre: <span id="time">15</span>s</strong>
+                    <strong>En İyi: <span id="best">0</span></strong>
+                </div>
+                <button id="startGame">Başlat</button>
+                <button id="coinBtn" class="coin" disabled>+1</button>
+                <p id="gameMessage">GAME butonuyla paneli açtın. Başlat ile oyuna geçebilirsin.</p>
+            </div>
+        </div>
     </div>
 
     <footer>
         <p>&copy; 2026 Halil Esen. Tüm hakları saklıdır.</p>
     </footer>
+
+    <script>
+        const gameToggle = document.getElementById('gameToggle');
+        const gamePanel = document.getElementById('gamePanel');
+        const startGame = document.getElementById('startGame');
+        const coinBtn = document.getElementById('coinBtn');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+        const bestEl = document.getElementById('best');
+        const gameMessage = document.getElementById('gameMessage');
+
+        let score = 0;
+        let timeLeft = 15;
+        let bestScore = Number(localStorage.getItem('miniGameBest')) || 0;
+        let timer = null;
+
+        bestEl.textContent = bestScore;
+
+        gameToggle.addEventListener('click', () => {
+            gamePanel.classList.toggle('active');
+            if (gamePanel.classList.contains('active')) {
+                gameMessage.textContent = 'Panel açıldı. Başlat ile oyunu başlat.';
+            }
+        });
+
+        coinBtn.addEventListener('click', () => {
+            if (timeLeft > 0) {
+                score += 1;
+                scoreEl.textContent = score;
+            }
+        });
+
+        startGame.addEventListener('click', () => {
+            clearInterval(timer);
+            score = 0;
+            timeLeft = 15;
+            scoreEl.textContent = score;
+            timeEl.textContent = timeLeft;
+            coinBtn.disabled = false;
+            gameMessage.textContent = 'Başladı! 15 saniye boyunca tıkla.';
+
+            timer = setInterval(() => {
+                timeLeft -= 1;
+                timeEl.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    coinBtn.disabled = true;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        localStorage.setItem('miniGameBest', String(bestScore));
+                        bestEl.textContent = bestScore;
+                        gameMessage.textContent = 'Süre bitti. Yeni rekor: ' + score + '!';
+                    } else {
+                        gameMessage.textContent = 'Süre bitti. Skorun: ' + score + '. Tekrar dene!';
+                    }
+                }
+            }, 1000);
+        });
+    </script>
 
 </body>
 </html>
