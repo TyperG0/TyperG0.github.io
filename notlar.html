@@ -326,6 +326,9 @@
                     '<div class="archive-item">' +
                         '<img src="' + item.data + '" alt="Arsiv gorseli">' +
                         '<div class="archive-meta"><span>' + item.name + '</span><span>' + formatBytes(item.size) + '</span></div>' +
+                        '<div style="padding:0 6px 6px; display:flex; gap:6px;">' +
+                            '<a class="archive-btn" style="padding:4px 8px; font-size:0.72rem;" href="' + item.data + '" download="' + item.name + '">İndir</a>' +
+                        '</div>' +
                         (archiveAdminUnlocked
                             ? '<div style="padding:0 6px 6px;"><button class="archive-btn" style="background:#ef4444; padding:4px 8px; font-size:0.72rem;" data-remove-image="' + key + '">Sil</button></div>'
                             : '') +
