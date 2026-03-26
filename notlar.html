@@ -129,6 +129,33 @@
             font-size: 0.8rem;
         }
 
+        .archive-pending {
+            border: 1px solid rgba(39, 54, 79, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+            background: #0e1728;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .archive-admin {
+            border: 1px dashed var(--line);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-state {
+            font-size: 0.76rem;
+            color: var(--muted);
+        }
+
         .archive-empty {
             border: 1px dashed rgba(59, 130, 246, 0.45);
             border-radius: 8px;
@@ -181,6 +208,13 @@
 
                 <input id="archiveUploader" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar" style="display:none;">
 
+                <div class="archive-admin">
+                    <span style="font-size:0.8rem; color:var(--muted);">Arşiv Yönetici:</span>
+                    <input type="password" id="archiveAdminPin" placeholder="PIN" style="width:90px; padding:6px; font-size:0.78rem;">
+                    <button id="unlockArchiveAdmin" style="padding:6px 10px; font-size:0.74rem;">Yönetici Aç</button>
+                    <span class="admin-state" id="archiveAdminState">Durum: Kilitli (onay/silme kapalı)</span>
+                </div>
+
                 <div class="archive-grid">
                     <div class="archive-box">
                         <h3>Paylaşılan Görseller</h3>
@@ -189,6 +223,8 @@
                     <div class="archive-box">
                         <h3>Dosyalar</h3>
                         <div id="archiveFiles"></div>
+                        <h3 style="margin-top:12px;">Onay Bekleyenler</h3>
+                        <div id="archivePending"></div>
                     </div>
                 </div>
             </section>
@@ -235,13 +271,18 @@
         const archiveUploader = document.getElementById("archiveUploader");
         const archiveGallery = document.getElementById("archiveGallery");
         const archiveFiles = document.getElementById("archiveFiles");
+        const archivePending = document.getElementById("archivePending");
+        const archiveAdminPin = document.getElementById("archiveAdminPin");
+        const unlockArchiveAdmin = document.getElementById("unlockArchiveAdmin");
+        const archiveAdminState = document.getElementById("archiveAdminState");
+        let archiveAdminUnlocked = false;
 
         function getArchiveState() {
             try {
                 const parsed = JSON.parse(localStorage.getItem(archiveKey));
-                return parsed || { images: [], files: [] };
+                return parsed || { pending: [], images: [], files: [] };
             } catch (e) {
-                return { images: [], files: [] };
+                return { pending: [], images: [], files: [] };
             }
         }
 
@@ -266,14 +307,20 @@
 
         function renderArchive() {
             const state = getArchiveState();
+            archiveAdminState.textContent = archiveAdminUnlocked
+                ? "Durum: Açık (onay/silme aktif)"
+                : "Durum: Kilitli (onay/silme kapalı)";
 
             if (!state.images.length) {
                 archiveGallery.innerHTML = '<div class="archive-empty">Henüz görsel yok. Dosya Seç ile yükleyebilirsin.</div>';
             } else {
-                archiveGallery.innerHTML = state.images.map((item) => (
+                archiveGallery.innerHTML = state.images.map((item, index) => (
                     '<div class="archive-item">' +
                         '<img src="' + item.data + '" alt="Arsiv gorseli">' +
                         '<div class="archive-meta"><span>' + item.name + '</span><span>' + formatBytes(item.size) + '</span></div>' +
+                        (archiveAdminUnlocked
+                            ? '<div style="padding:0 6px 6px;"><button class="archive-btn" style="background:#ef4444; padding:4px 8px; font-size:0.72rem;" data-remove-image="' + index + '">Sil</button></div>'
+                            : '') +
                     '</div>'
                 )).join('');
             }
@@ -289,8 +336,29 @@
                         '</div>' +
                         '<div style="display:flex; gap:6px;">' +
                             '<a class="archive-btn" style="padding:5px 8px; font-size:0.72rem;" href="' + item.data + '" download="' + item.name + '">İndir</a>' +
-                            '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-remove-file="' + index + '">Sil</button>' +
+                            (archiveAdminUnlocked
+                                ? '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-remove-file="' + index + '">Sil</button>'
+                                : '') +
                         '</div>' +
+                    '</div>'
+                )).join('');
+            }
+
+            if (!state.pending.length) {
+                archivePending.innerHTML = '<div class="archive-empty">Onay bekleyen dosya yok.</div>';
+            } else {
+                archivePending.innerHTML = state.pending.map((item, index) => (
+                    '<div class="archive-pending">' +
+                        '<div style="min-width:0;">' +
+                            '<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:190px;">' + item.name + '</div>' +
+                            '<div style="font-size:0.72rem; color:var(--muted);">' + formatBytes(item.size) + ' | ' + (item.isImage ? 'Görsel' : 'Dosya') + '</div>' +
+                        '</div>' +
+                        (archiveAdminUnlocked
+                            ? '<div style="display:flex; gap:6px;">' +
+                                '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#0f766e;" data-approve-item="' + index + '">Onayla</button>' +
+                                '<button class="archive-btn" style="padding:5px 8px; font-size:0.72rem; background:#ef4444;" data-reject-item="' + index + '">Reddet</button>' +
+                              '</div>'
+                            : '<span style="font-size:0.72rem; color:var(--muted);">Yönetici Onayı Bekliyor</span>') +
                     '</div>'
                 )).join('');
             }
@@ -303,25 +371,77 @@
             const state = getArchiveState();
             for (const file of files) {
                 const data = await readAsDataUrl(file);
-                const item = { name: file.name, size: file.size, data };
-                if (file.type.startsWith("image/")) {
-                    state.images.unshift(item);
-                } else {
-                    state.files.unshift(item);
-                }
+                const item = { name: file.name, size: file.size, data, isImage: file.type.startsWith("image/") };
+                state.pending.unshift(item);
             }
             saveArchiveState(state);
             archiveUploader.value = "";
+            renderArchive();
+            alert("Dosya onay kuyruğuna eklendi. Yayınlanması için yönetici onayı gerekli.");
+        });
+
+        archiveGallery.addEventListener("click", (event) => {
+            const idx = event.target.getAttribute("data-remove-image");
+            if (idx === null) return;
+            if (!archiveAdminUnlocked) {
+                alert("Bu işlem sadece yöneticiye açık.");
+                return;
+            }
+            const state = getArchiveState();
+            state.images.splice(Number(idx), 1);
+            saveArchiveState(state);
             renderArchive();
         });
 
         archiveFiles.addEventListener("click", (event) => {
             const idx = event.target.getAttribute("data-remove-file");
             if (idx === null) return;
+            if (!archiveAdminUnlocked) {
+                alert("Bu işlem sadece yöneticiye açık.");
+                return;
+            }
             const state = getArchiveState();
             state.files.splice(Number(idx), 1);
             saveArchiveState(state);
             renderArchive();
+        });
+
+        archivePending.addEventListener("click", (event) => {
+            const approveIdx = event.target.getAttribute("data-approve-item");
+            const rejectIdx = event.target.getAttribute("data-reject-item");
+            if (approveIdx === null && rejectIdx === null) return;
+
+            if (!archiveAdminUnlocked) {
+                alert("Onay/reddet işlemleri sadece yöneticiye açık.");
+                return;
+            }
+
+            const state = getArchiveState();
+
+            if (approveIdx !== null) {
+                const item = state.pending.splice(Number(approveIdx), 1)[0];
+                if (item) {
+                    if (item.isImage) state.images.unshift(item);
+                    else state.files.unshift(item);
+                }
+            }
+
+            if (rejectIdx !== null) {
+                state.pending.splice(Number(rejectIdx), 1);
+            }
+
+            saveArchiveState(state);
+            renderArchive();
+        });
+
+        unlockArchiveAdmin.addEventListener("click", () => {
+            if (archiveAdminPin.value === "HE2026") {
+                archiveAdminUnlocked = true;
+                renderArchive();
+                alert("Arşiv yönetici modu açıldı.");
+            } else {
+                alert("Hatalı PIN!");
+            }
         });
 
         // Mesaj Gönderme Fonksiyonu
